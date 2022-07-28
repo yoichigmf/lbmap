@@ -140,8 +140,8 @@ var map = new maplibregl.Map({
 const setBasemap = (name) => {
             // Instantiate the given basemap layer.
             map.setStyle(base_maps[name]);
-  
 
+  
         };
 
 setBasemap('pale');
@@ -151,12 +151,49 @@ const basemapsSelectElement = document.querySelector("#basemaps");
 
         basemapsSelectElement.addEventListener("change", (e) => {
             setBasemap(e.target.value);
+
         });
 
 
 
 map.addControl(new maplibregl.NavigationControl(), 'bottom-right');
 map.addControl(new maplibregl.ScaleControl() );
+
+
+map.on('load', function () {
+map.addSource('okayama-raster-tiles', {
+  
+'type': 'raster',
+'tiles': [
+'https://disaportaldata.gsi.go.jp/raster/01_flood_l2_shinsuishin_pref_data/33/{z}/{x}/{y}.png'
+],
+'tileSize': 256,
+'attribution':
+'岡山県'
+
+});
+
+map.addLayer({
+ 'id':'okayama-sinsui',
+ 'type':'raster',
+ 'source':'okayama-raster-tiles',
+ 'minzoom':2,
+ 'maxzoom':17,
+ paint:{}
+
+}
+);
+
+map.setPaintProperty(
+'okayama-sinsui',
+'raster-opacity',
+0.5
+);
+ 
+
+});
+
+
 
 </script>
  
