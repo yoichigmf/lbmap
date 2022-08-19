@@ -72,28 +72,113 @@ color: #ffffff;
 background: #3074a4;
 }
 
+
+
 </style>
+
+
 </head>
 <body>
- 
+
+
+  <style>
+    .listing-group {
+    font: 12px/20px 'Helvetica Neue', Arial, Helvetica, sans-serif;
+    font-weight: 600;
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    z-index: 1;
+    border-radius: 3px;
+    max-width: 20%;
+    color: #fff;
+    }
+     
+    .listing-group input[type='checkbox']:first-child + label {
+    border-radius: 3px 3px 0 0;
+    }
+     
+    .listing-group label:last-child {
+    border-radius: 0 0 3px 3px;
+    border: none;
+    }
+     
+    .listing-group input[type='checkbox'] {
+    display: none;
+    }
+     
+    .listing-group input[type='checkbox'] + label {
+    background-color: #3386c0;
+    display: block;
+    cursor: pointer;
+    padding: 10px;
+    border-bottom: 1px solid rgba(0, 0, 0, 0.25);
+    }
+     
+    .listing-group input[type='checkbox'] + label {
+    background-color: #3386c0;
+    text-transform: capitalize;
+    }
+     
+    .listing-group input[type='checkbox'] + label:hover,
+    .listing-group input[type='checkbox']:checked + label {
+    background-color: #4ea0da;
+    }
+     
+    .listing-group input[type='checkbox']:checked + label:before {
+    content: '✔';
+    margin-right: 5px;
+    }
+  </style>
+
+ <!--
 <nav id="menu"></nav>
+ -->
 <div id='map'></div>
 <div id="basemaps-selecter">
 
   <select id="basemaps">
+  <!-- <option value="blank">地理院タイル白地図</option>  -->
     <option value="pale">地理院タイル淡色</option>
-    <option value="std">地理院タイル標準</option>
+ <!--  <option value="std">地理院タイル標準</option>
     <option value="gsi_3d">地理院タイル3D風</option>
     <option value="std_vertical">地理院タイル標準縦書きあり</option>
+ -->
     <option value="gsi_photo">地理院タイル写真</option>
+    </select>
 
 </div>
+
+<nav id="listing-group" class="listing-group">
+  <input type="checkbox" id="okayama-sinsui" checked="checked" />
+  <label for="okayama-sinsui">浸水想定図</label>
+  <input type="checkbox" id="okayama-dosekiryu" checked="checked" />
+  <label for="okayama-dosekiryu">土砂災害警戒区域（土石流)</label>
+
+  <input type="checkbox" id="waterarea" checked="checked" />
+  <label for="waterarea">水部</label>
+
+  <!--
+  
+  <input type="checkbox" id="dragRotate" checked="checked" />
+  <label for="dragRotate">Drag rotate</label>
+  <input type="checkbox" id="dragPan" checked="checked" />
+  <label for="dragPan">Drag pan</label>
+  <input type="checkbox" id="keyboard" checked="checked" />
+  <label for="keyboard">Keyboard</label>
+  <input type="checkbox" id="doubleClickZoom" checked="checked" />
+  <label for="doubleClickZoom">Double click zoom</label>
+  <input type="checkbox" id="touchZoomRotate" checked="checked" />
+  <label for="touchZoomRotate">Touch zoom rotate</label>
+  -->
+  </nav>
 
 <script>
 
 
 
 const base_maps = {
+  "blank": './blank.json',
   "pale": './pale.json',
   "std":'./std.json',
   "gsi_3d":'./building3d.json',
@@ -126,31 +211,44 @@ const base_maps = {
 var map = new maplibregl.Map({
   container: 'map',
   hash: true,
-  style: './pale.json', //style.jsonへのパス
+  style: './pale.json', //blank.jsonへのパス
   center: [134.0188, 34.755387],  
   zoom: 15,
   maxZoom: 17.99,
   minZoom: 4,
+  diff: false,
   localIdeographFontFamily: false
 //  localIdeographFontFamily: ['MS Gothic', 'Hiragino Kaku Gothic Pro', 'sans-serif']
 });
 
 
 
+
 const setBasemap = (name) => {
             // Instantiate the given basemap layer.
-            map.setStyle(base_maps[name]);
+         //   map.setStyle(base_maps[name]);
+         if (name == 'gsi_photo'){
+            console.log('gsi');
+            map.setLayoutProperty(name, 'visibility', 'visible');
+         }
+         else {
+          map.setLayoutProperty('gsi_photo', 'visibility', 'none');
+         }
 
-  
         };
 
-setBasemap('pale');
- 
+//setBasemap('pale');
+
+
+
+
  
 const basemapsSelectElement = document.querySelector("#basemaps");
 
         basemapsSelectElement.addEventListener("change", (e) => {
             setBasemap(e.target.value);
+ 
+           // map.triggerRepaint();
 
         });
 
@@ -159,38 +257,174 @@ const basemapsSelectElement = document.querySelector("#basemaps");
 map.addControl(new maplibregl.NavigationControl(), 'bottom-right');
 map.addControl(new maplibregl.ScaleControl() );
 
+map.on('sourcedata', function() {
+console.log('A sourcedata event occurred.');
+/*
+map.setLayoutProperty(
+              'okayama-sinsui',
+'visibility',
+'visible'
+);
+*/
+});
+
+
+map.on('render', function() {
+console.log('A render event occurred.');
+});
 
 map.on('load', function () {
-map.addSource('okayama-raster-tiles', {
+
+console.log('A load event occurred.');
+
+
+map.addSource('gsi_raster', {
   
-'type': 'raster',
-'tiles': [
-'https://disaportaldata.gsi.go.jp/raster/01_flood_l2_shinsuishin_pref_data/33/{z}/{x}/{y}.png'
-],
-'tileSize': 256,
-'attribution':
-'岡山県'
+  'type': 'raster',
+  tiles: [
+                    'https://cyberjapandata.gsi.go.jp/xyz/seamlessphoto/{z}/{x}/{y}.jpg',
+                ],
+  'tileSize': 256,
+  'attribution':
+  '国土地理院',
+  
+  });
+
+  map.addLayer({
+ 'id':'gsi_photo',
+ 'type':'raster',
+ 'source':'gsi_raster',
+ 'minzoom':5,
+ 'maxzoom':18,
+ 'layout':{
+ 'visibility':'none'
+ },
+ paint:{   "raster-opacity": 1.0}
 
 });
 
+
+
+map.addSource('gsi_std', {
+  
+  type: "vector",
+  tiles:[
+      'https://cyberjapandata.gsi.go.jp/xyz/experimental_bvmap/{z}/{x}/{y}.pbf'
+     ]
+
+  });
+
+
+
 map.addLayer({
+'id': 'waterarea',
+'type': 'fill',
+'source': 'gsi_std',
+'source-layer': 'waterarea',
+'minzoom':4,
+'maxzoom':16,
+'layout': {
+'line-join': 'round',
+'line-cap': 'round'
+},
+'layout':{
+ 'visibility':'visible'
+ },
+'paint': {
+  "fill-color": "hsl(200, 80%, 50%)",
+          "fill-opacity": 0.5,
+          "fill-outline-color": "white"
+}
+});
+
+//map.setLayoutProperty('gsi_photo', 'visibility', 'none');
+
+/*
+map.addLayer({
+ 'id':'gsi_std',
+ 'source':'gsi_std',
+
+ 'type':'background',
+ 
+ 'minzoom':5,
+ 'maxzoom':18,
+
+
+});
+
+*/
+
+ 
+map.addSource('okayama-raster-tiles', {
+  
+  'type': 'raster',
+  'tiles': [
+  'https://disaportaldata.gsi.go.jp/raster/01_flood_l2_shinsuishin_pref_data/33/{z}/{x}/{y}.png'
+  ],
+  'tileSize': 256,
+  'attribution':
+  '岡山県'
+  
+  });
+
+  map.addLayer({
  'id':'okayama-sinsui',
  'type':'raster',
  'source':'okayama-raster-tiles',
  'minzoom':2,
  'maxzoom':17,
- paint:{}
+ paint:{   "raster-opacity": 0.5}
+
+});
+
+
+
+
+map.addSource('okayama-dosekiryuu-tiles', {
+  
+  'type': 'raster',
+  'tiles': [
+  'https://disaportaldata.gsi.go.jp/raster/05_dosekiryukeikaikuiki_data/33/{z}/{x}/{y}.png'
+  ],
+  'tileSize': 256,
+  'attribution':
+  '岡山県'
+  
+  });
+
+
+  map.addLayer({
+ 'id':'okayama-dosekiryu',
+ 'type':'raster',
+ 'source':'okayama-dosekiryuu-tiles',
+ 'minzoom':2,
+ 'maxzoom':17,
+ paint:{   "raster-opacity": 0.5}
+
+});
+
+
+});
+
+
+
+
+
+
+
+
+
+document
+.getElementById('listing-group')
+.addEventListener('change', function (e) {
+var layername = e.target.id;
+if (e.target.checked) {
+  map.setLayoutProperty(layername, 'visibility', 'visible');
+
+} else {
+  map.setLayoutProperty(layername, 'visibility', 'none');
 
 }
-);
-
-map.setPaintProperty(
-'okayama-sinsui',
-'raster-opacity',
-0.5
-);
- 
-
 });
 
 
