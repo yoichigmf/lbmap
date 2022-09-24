@@ -29,6 +29,17 @@
         padding: 4px 8px;
       }
 
+#tablearea {
+  position: absolute;
+  bottom: 0;
+  width: 100%;
+  height: 200px;
+  z-index:255;
+  box-shadow: 0 0 50px -25px black;
+  background: white;
+  display:block;
+
+}
 
 </style>
 
@@ -151,7 +162,7 @@
             </div>
         </div>
 
-        <div id="bottom" >
+        <div id="tablearea" >
 
         </div>
 
@@ -293,30 +304,30 @@ map.addControl(new maplibregl.ScaleControl() );
         map.on("load", async () => {
 
                   
-map.addSource('gsi_raster', {
+            map.addSource('gsi_raster', {
   
-  'type': 'raster',
-  tiles: [
-                    'https://cyberjapandata.gsi.go.jp/xyz/seamlessphoto/{z}/{x}/{y}.jpg',
-                ],
-  'tileSize': 256,
-  'attribution':
-  '国土地理院',
+                    'type': 'raster',
+                     tiles: [
+                                 'https://cyberjapandata.gsi.go.jp/xyz/seamlessphoto/{z}/{x}/{y}.jpg',
+                             ],
+                    'tileSize': 256,
+                    'attribution':
+                    '国土地理院',
   
-  });
+                         });
 
-  map.addLayer({
- 'id':'gsi_photo',
- 'type':'raster',
- 'source':'gsi_raster',
- 'minzoom':5,
- 'maxzoom':18,
- 'layout':{
- 'visibility':'none'
- },
- paint:{   "raster-opacity": 1.0}
+            map.addLayer({
+                     'id':'gsi_photo',
+                        'type':'raster',
+                        'source':'gsi_raster',
+                        'minzoom':5,
+                        'maxzoom':18,
+                        'layout':{
+                                'visibility':'none'
+                                },
+                         paint:{   "raster-opacity": 1.0}
 
-});
+                        });
 
 
 
@@ -325,9 +336,9 @@ map.addSource('gsi_raster', {
                 fc.features.push(f);
 
             map.addSource("fude_yamagata", {
-               type: "geojson",
-               data: fc,
-            });
+                  type: "geojson",
+                  data: fc,
+                  });
             map.addLayer({
                 id: "fude-fill",
                 type: "fill",
@@ -367,12 +378,21 @@ map.addSource('gsi_raster', {
 // When a click event occurs on a feature in the places layer, open a popup at the
 // location of the feature, with description HTML from its properties.
 map.on('click', 'fude-fill', function (e) {
-var coordinates = e.features[0].geometry.coordinates.slice();
-var description = e.features[0].properties["history"];
+            var coordinates = e.features[0].geometry.coordinates.slice();
+           // var description = e.features[0].properties["history"];
 
  
-console.log('A click event has occurred at ' + e.lngLat);
-console.log(e.features[0].properties["history"]);
+        console.log('A click event has occurred at ' + e.lngLat);
+
+        
+var tghtml = "<table><TH>項目</TH><TH>値</TH>";
+for ( var key in e.features[0].properties ){
+     tghtml = tghtml + "<TR><td>" + key + "</td><td>" + e.features[0].properties[key] + "</td></tr>";
+}
+
+tghtml = tghtml + "</table>";
+
+    //    console.log(e.features[0].properties["history"]);
  // Ensure that if the map is zoomed out such that multiple
  // copies of the feature are visible, the popup appears
  // over the copy being pointed to.
@@ -380,11 +400,11 @@ console.log(e.features[0].properties["history"]);
  //coordinates[0] += e.lngLat.lng > coordinates[0] ? 360 : -360;
  //}
   
- new maplibregl.Popup()
- .setLngLat(e.lngLat)
- .setHTML(description)
- .addTo(map);
- });
+        new maplibregl.Popup()
+                .setLngLat(e.lngLat)
+                .setHTML(tghtml)
+                .addTo(map);
+    });
         
 
     </script>
