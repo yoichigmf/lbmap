@@ -307,8 +307,100 @@ map.addControl(new maplibregl.ScaleControl() );
 
 loadfgb();
 
+
+
+function  getTablerows( pagenumber, rowsinpage, lproperties ){
+
+    var startr = pagenumber * rowsinpage;
+
+    var rethtm = " ";
+
+    var  ct = 0;
+    for ( const fitem of fc.features ){
+    //console.log(' log ' + ct + " startr " + startr + " up " );
+
+
+        if (( ct >= startr ) && ( ct < (startr + rowsinpage))){
+
+            console.log(' in '  );
+             var rts = "<tr>";
+
+             for ( var key in lproperties ){
+
+           //console.log(' key ' + key + " " + fitem.properties[key]);
+
+                rts = rts + "<td>";
+                rts = rts + fitem.properties[key];
+
+                rts = rts + "</td>";
+             }
+
+             rts = rts + "</tr>";
+
+             rethtm = rethtm + rts;
+        }
+        ct = ct + 1;
+
+        if ( ct >=  (startr + rowsinpage)){
+               break;
+        }
+
+    }
+
+    return rethtm;
+
+
+
+}
+
+const  itemperpage = 20;
+
+
+
+//    table display check
 function handleClick( cb ) {
 
+    console.log('A click event has occurred at ' + cb.checked );
+    var element = document.getElementById('tablearea');
+
+
+    if (cb.checked){
+
+        element.style.display = "block";
+
+               
+        var tghtml = "<table><tr>";
+
+        var tgfg = fc.features[0];
+
+        var alength = fc.features.length;
+
+
+        console.log('feature  ' + alength);
+
+        
+        for ( var key in tgfg.properties ){
+              tghtml = tghtml + "<TH>" + key + "</TH>" ;
+
+         }
+
+        tghtml = tghtml + "</tr>";
+
+        pghtml = getTablerows( 0, itemperpage, tgfg.properties);
+
+        tghtml = tghtml + pghtml;
+
+        tghtml = tghtml + "</table>";
+
+
+        element.innerHTML = tghtml;
+
+
+    }
+    else {
+        element.style.display = "none";
+
+    }
 }
 
 //    feature collection from flatgeobuf
@@ -405,7 +497,7 @@ map.on('click', 'fude-fill', function (e) {
         console.log('A click event has occurred at ' + e.lngLat);
 
         
-var tghtml = "<table><TH>項目</TH><TH>値</TH>";
+var tghtml = "<table><tr><TH>項目</TH><TH>値</TH></tr>";
 for ( var key in e.features[0].properties ){
      tghtml = tghtml + "<TR><td>" + key + "</td><td>" + e.features[0].properties[key] + "</td></tr>";
 }
