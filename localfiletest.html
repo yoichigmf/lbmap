@@ -2,7 +2,7 @@
 <html>
 <head>
 <meta charset='utf-8' />
-<title>地理院地図VectorのベクトルタイルをMaplibre JSで表示するサンプル</title>
+<title>FlatGeobuf example</title>
 <meta name='viewport' content='initial-scale=1,maximum-scale=1,user-scalable=no' />
 <script src="https://unpkg.com/maplibre-gl@2.1.9/dist/maplibre-gl.js"></script>
 <link href="https://unpkg.com/maplibre-gl@2.1.9/dist/maplibre-gl.css" rel="stylesheet" />
@@ -224,10 +224,10 @@ transform: translateX(295px);
     <div class="sidebar-content rounded-rect flex-center">
     
     <nav id="listing-group" class="listing-group">
-      <input type="checkbox" id="okayama-sinsui" checked="checked" />
-      <label for="okayama-sinsui">浸水想定図</label>
-      <input type="checkbox" id="okayama-dosekiryu" checked="checked" />
-      <label for="okayama-dosekiryu">土砂災害警戒区域（土石流)</label>
+      <input type="checkbox" id="fude-line" checked="checked" />
+      <label for="okayama-sinsui">筆界</label>
+      <input type="checkbox" id="fude-fill" checked="checked" />
+      <label for="okayama-dosekiryu">筆界（FILL）</label>
     
       <input type="checkbox" id="waterarea" checked="checked" />
       <label for="waterarea">水部</label>
@@ -256,38 +256,67 @@ transform: translateX(295px);
 
 </div>
 
+<!--
+<nav id="listing-group" class="listing-group">
+  <input type="checkbox" id="okayama-sinsui" checked="checked" />
+  <label for="okayama-sinsui">浸水想定図</label>
+  <input type="checkbox" id="okayama-dosekiryu" checked="checked" />
+  <label for="okayama-dosekiryu">土砂災害警戒区域（土石流)</label>
+
+  <input type="checkbox" id="waterarea" checked="checked" />
+  <label for="waterarea">水部</label>
+
+
+-->
+
+  <!--
+  
+  <input type="checkbox" id="dragRotate" checked="checked" />
+  <label for="dragRotate">Drag rotate</label>
+  <input type="checkbox" id="dragPan" checked="checked" />
+  <label for="dragPan">Drag pan</label>
+  <input type="checkbox" id="keyboard" checked="checked" />
+  <label for="keyboard">Keyboard</label>
+  <input type="checkbox" id="doubleClickZoom" checked="checked" />
+  <label for="doubleClickZoom">Double click zoom</label>
+  <input type="checkbox" id="touchZoomRotate" checked="checked" />
+  <label for="touchZoomRotate">Touch zoom rotate</label>
+  
+  </nav>
+
+  -->
   
 <script>
 
 function toggleSidebar(id) {
-  var elem = document.getElementById(id);
-  var classes = elem.className.split(' ');
-  var collapsed = classes.indexOf('collapsed') !== -1;
+var elem = document.getElementById(id);
+var classes = elem.className.split(' ');
+var collapsed = classes.indexOf('collapsed') !== -1;
  
-  var padding = {};
+var padding = {};
  
-  if (collapsed) {
+if (collapsed) {
 // Remove the 'collapsed' class from the class list of the element, this sets it back to the expanded state.
-    classes.splice(classes.indexOf('collapsed'), 1);
+classes.splice(classes.indexOf('collapsed'), 1);
  
-    padding[id] = 300; // In px, matches the width of the sidebars set in .sidebar CSS class
-    map.easeTo({
-        padding: padding,
-        duration: 1000 // In ms, CSS transition duration property for the sidebar matches this value
-        });
-    } else {
-        padding[id] = 0;
+padding[id] = 300; // In px, matches the width of the sidebars set in .sidebar CSS class
+map.easeTo({
+padding: padding,
+duration: 1000 // In ms, CSS transition duration property for the sidebar matches this value
+});
+} else {
+padding[id] = 0;
 // Add the 'collapsed' class to the class list of the element
-        classes.push('collapsed');
+classes.push('collapsed');
  
-    map.easeTo({
-        padding: padding,
-        duration: 1000
-      });
-  }
+map.easeTo({
+padding: padding,
+duration: 1000
+});
+}
  
 // Update the class list on the element
-  elem.className = classes.join(' ');
+elem.className = classes.join(' ');
 }
 
 const base_maps = {
@@ -321,11 +350,14 @@ const base_maps = {
     }
 };
 
+
+
+
 var map = new maplibregl.Map({
   container: 'map',
   hash: true,
   style: './skeleton.json', //blank.jsonへのパス
-  center: [134.0188, 34.755387],  
+  center: [140.311958, 38.254897],  
   zoom: 15,
   maxZoom: 17.99,
   minZoom: 4,
@@ -373,6 +405,13 @@ const basemapsSelectElement = document.querySelector("#basemaps");
 map.addControl(new maplibregl.NavigationControl(), 'bottom-right');
 map.addControl(new maplibregl.ScaleControl() );
 
+
+
+
+
+
+
+
 map.on('sourcedata', function() {
 console.log('A sourcedata event occurred.');
 /*
@@ -384,12 +423,13 @@ map.setLayoutProperty(
 */
 });
 
+const  response =   fetch("./data/flatgeobuf/2022_062014yamagata.fgb")
 
 map.on('render', function() {
 console.log('A render event occurred.');
 });
 
-map.on('load', function () {
+map.on('load',  async () => {
 
 console.log('A load event occurred.');
 
@@ -470,6 +510,40 @@ map.addLayer({
 
 */
 
+
+const fc = {type: "FeatureCollection", features: []};
+          for await  (const f of flatgeobuf.deserialize(response.body))
+                fc.features.push(f);
+
+            map.addSource("fude", {
+               type: "geojson",
+               data: fc,
+            });
+            map.addLayer({
+                id: "fude-fill",
+                type: "fill",
+                source: "fude",
+                paint: {
+                  "fill-color": "#0000FF",
+                  "fill-opacity": 0.2,
+                },
+            });
+
+  map.setLayoutProperty("fude-fill", 'visibility', 'visible');
+
+            map.addLayer({
+                id: "fude-line",
+                type: "line",
+                source: "fude",
+                paint: {
+                  "line-color": "#0000FF",
+                  "line-opacity": 0.9,
+                  "line-width": 2,
+                },
+            });
+
+            map.setLayoutProperty("fude-line", 'visibility', 'visible');
+  /*          
  
 map.addSource('okayama-raster-tiles', {
   
@@ -518,6 +592,7 @@ map.addSource('okayama-dosekiryuu-tiles', {
  paint:{   "raster-opacity": 0.5}
 
 });
+*/
 
 
 });
