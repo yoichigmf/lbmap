@@ -40,6 +40,9 @@
   box-shadow: 0 0 50px -25px black;
   background: white;
   display:none;
+  Overflow-y:scroll;
+  Overflow-x:scroll;
+
 
 }
 
@@ -50,6 +53,15 @@
         background: rgba(255, 255, 255, 0);
         z-index:255;
       }
+
+
+#file {
+position: absolute;
+top: 80px;
+left: 20px;
+z-index:255;
+}
+
 
 </style>
 
@@ -149,6 +161,13 @@
               </select>
           
           </div>
+
+          <input
+          type="file"
+          id="file"
+          name="file"
+          accept="application/csv,application/vnd.geo+json,.csv"
+          />
 
 
         <div id="left" class="sidebar flex-center left collapsed">
