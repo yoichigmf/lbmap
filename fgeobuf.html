@@ -2,8 +2,8 @@
 <html lang="en">
 <head>
     <meta content="text/html; charset=utf-8" http-equiv="Content-Type"/>
-    <link href="https://unpkg.com/maplibre-gl@2.1.9/dist/maplibre-gl.css" rel="stylesheet" />
-    <script src="https://unpkg.com/maplibre-gl@2.1.9/dist/maplibre-gl.js"></script>
+    <link href="https://unpkg.com/maplibre-gl@2.4.0/dist/maplibre-gl.css" rel="stylesheet" />
+    <script src="https://unpkg.com/maplibre-gl@2.4.0/dist/maplibre-gl.js"></script>
     <script src="https://unpkg.com/flatgeobuf@3.22.0/dist/flatgeobuf-geojson.min.js"></script>
     <style>
         body { margin:0; padding:0; }
@@ -48,10 +48,12 @@
 
 #displayTablechk{
         position: absolute;
-        top: 60px;
+        top: 40px;
         left: 20px;
         background: rgba(255, 255, 255, 0);
         z-index:255;
+        font-size: 16px;
+        padding: 4px 8px;
       }
 
 
@@ -61,6 +63,14 @@ top: 80px;
 left: 20px;
 z-index:255;
 }
+
+#figsave {
+position: absolute;
+top: 120px;
+left: 20px;
+z-index:255;
+}
+
 
 
 </style>
@@ -143,9 +153,7 @@ z-index:255;
 <body>
     <div id="map">
 
-        <div id="displayTablechk">
-            <label><input type='checkbox' onclick='handleClick(this);'>Table</label>
-        </div>
+    
 
 
         <div id="basemaps-selecter">
@@ -162,17 +170,30 @@ z-index:255;
           
           </div>
 
-          <input
-          type="file"
-          id="file"
-          name="file"
-          accept="application/csv,application/vnd.geo+json,.csv"
-          />
+        
 
 
         <div id="left" class="sidebar flex-center left collapsed">
             <div class="sidebar-content rounded-rect flex-center">
-            Left Sidebar
+          
+                <div id="displayTablechk">
+                    <label><input type='checkbox' onclick='handleClick(this);'>Table</label>
+                </div>
+
+
+
+            <input
+            type="file"
+            id="file"
+            name="file"
+            accept="application/csv,application/vnd.geo+json,.csv,.geojson"
+            />
+
+            <input type="button"  id="figsave" name="fsave" onclick='SaveClick();'  value="save" />
+     
+            <input type="button"  id="figclear" name="fsave" onclick='ClearClick();'  value="clear" />
+     
+     
             <div
             class="sidebar-toggle rounded-rect left"
             onclick="toggleSidebar('left')"
@@ -239,7 +260,71 @@ const base_maps = {
     }
 };
 
+ //  function of file select handler
+function handleFileSelect(evt) {
+var file = evt.target.files[0]; // Read first selected file
+console.log('selected file  ' + evt.target.files[0].name);
 
+let filename = evt.target.files[0].name;
+let file_type = filename.split('.').pop();
+
+var lfile_type = file_type.toLowerCase() ;
+
+console.log(lfile_type);
+
+if ( lfile_type == "csv"){
+
+ 
+
+    ReadCSV( file );
+   
+
+
+
+
+}
+else if (lfile_type == "geojson"){
+    console.log("geojson hadler");
+}
+
+
+}
+
+let fileReader = new FileReader();
+function ReadCSV( file ){
+
+    fileReader.readAsText(file, "Shift_JIS");
+    console.log("csv hadler");
+
+    
+    // ファイル読み込み時
+
+}
+
+
+let items = [];
+fileReader.onload = () => {
+  // ファイル読み込み
+  let fileResult = fileReader.result.split('\r\n');
+
+  // 先頭行をヘッダとして格納
+  let header = fileResult[0].split(',')
+  // 先頭行の削除
+  fileResult.shift();
+
+  // CSVから情報を取得
+  items = fileResult.map(item => {
+    let datas = item.split(',');
+    let result = {};
+    for (const index in datas) {
+      let key = header[index];
+      result[key] = datas[index];
+    }
+    return result;
+  });
+
+  console.log( items.length + "件のデータを読み込みました。");
+} 
 
 
 function toggleSidebar(id) {
@@ -425,6 +510,18 @@ function handleClick( cb ) {
 //    feature collection from flatgeobuf
 var fc = {type: "FeatureCollection", features: []};
 
+function SaveClick(){
+    console.log('in save click!' );
+
+
+}
+
+function ClearClick(){
+    console.log('in clear click!' );
+
+
+}
+
 //  load flat geobuff file
 async function loadfgb(){
 
@@ -538,6 +635,10 @@ tghtml = tghtml + "</table>";
     });
         
 
+
+document
+     .getElementById('file')
+     .addEventListener('change', handleFileSelect, false);
     </script>
 </body>
 </html>
