@@ -70,6 +70,18 @@ top: 120px;
 left: 20px;
 z-index:255;
 }
+#figclear {
+position: absolute;
+top: 140px;
+left: 20px;
+z-index:255;
+}
+#figbrowse {
+position: absolute;
+top: 160px;
+left: 20px;
+z-index:255;
+}
 
 
 
@@ -191,8 +203,8 @@ z-index:255;
 
             <input type="button"  id="figsave" name="fsave" onclick='SaveClick();'  value="save" />
      
-            <input type="button"  id="figclear" name="fsave" onclick='ClearClick();'  value="clear" />
-     
+            <input type="button"  id="figclear" name="fclear" onclick='ClearClick();'  value="clear" />
+            <input type="button"  id="figbrowse" name="fbrowse" onclick='BrowseClick();'  value="browse" />
      
             <div
             class="sidebar-toggle rounded-rect left"
@@ -510,6 +522,11 @@ function handleClick( cb ) {
 //    feature collection from flatgeobuf
 var fc = {type: "FeatureCollection", features: []};
 
+function BrowseClick(){
+    console.log('in browse click!' );
+
+
+}  
 function SaveClick(){
     console.log('in save click!' );
 
