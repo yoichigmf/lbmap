@@ -530,12 +530,16 @@ function BrowseClick(){
 function SaveClick(){
     console.log('in save click!' );
 
+    let svtext = JSON.stringify(fc);
+    console.log(svtext );
+
+    localStorage.setItem('figure', svtext);
 
 }
 
 function ClearClick(){
     console.log('in clear click!' );
-
+    localStorage.removeItem('figure');
 
 }
 
