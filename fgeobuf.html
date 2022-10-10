@@ -531,23 +531,66 @@ function SaveClick(){
     console.log('in save click!' );
 
     let svtext = JSON.stringify(fc);
-    console.log(svtext );
+    //console.log(svtext );
 
-    localStorage.setItem('figure', svtext);
+    storeName = "test";
+    const db = indexedDB.open("test")
+      db.onupgradeneeded = (event) => {
+           event.target.result.createObjectStore(storeName, {keyPath: "id"})
+      }
+
+      var data = {id:"features", fg: svtext };
+
+     db.onsuccess = (event) => {
+           console.log("succeed");
+
+           var db = event.target.result;
+           var trans = db.transaction(storeName, 'readwrite');
+          var store = trans.objectStore(storeName);
+          var putReq = store.put(data);
+
+          putReq.onsuccess = function(){
+                 console.log('put data success');
+                }
+
+         trans.oncomplete = function(){
+    // トランザクション完了時(putReq.onsuccessの後)に実行
+           console.log('transaction complete');
+         }
+
+
+       
+    
+
+
+     }
+
+   // localStorage.setItem('figure', svtext);
 
 }
 
 function ClearClick(){
     console.log('in clear click!' );
-    localStorage.removeItem('figure');
+   // localStorage.removeItem('figure');
+
+   var deleteReq = indexedDB.deleteDatabase("test");
+
+  deleteReq.onsuccess = function(event){
+    console.log('db delete success');
+    // 存在しないDB名を指定してもこっちが実行される
+  }
+
+  deleteReq.onerror = function(){
+    console.log('db delete error');
+  }
 
 }
 
 //  load flat geobuff file
 async function loadfgb(){
 
-
         const response = await fetch("https://stragetest.s3.ap-northeast-1.amazonaws.com/nouchi/yamagata/fgb/062014yamagata.fgb");
+        //const response = await fetch("https://stragetest.s3.ap-northeast-1.amazonaws.com/nouchi/yamagata/fgb/062031turuoka.fgb");
         map.on("load", async () => {
 
                   

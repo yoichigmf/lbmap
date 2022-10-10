@@ -561,7 +561,7 @@ map.addLayer({
 });
 
 */
-micon = new maplibregl.Marker();
+
 
 map.addSource( 
         'rpoints', {
@@ -574,10 +574,10 @@ map.addSource(
 //https://drive.google.com/file/d/1cFPBC57nxPHeJgHgLnfqv3PFro1YRNBN/view?usp=sharing
 //'https://upload.wikimedia.org/wikipedia/commons/7/7c/201408_cat.png',
 map.loadImage(
-'http://drive.google.com/uc?export=view&id=1cFPBC57nxPHeJgHgLnfqv3PFro1YRNBN',
+  'https://raw.githubusercontent.com/yoichigmf/lbmap/8adf0259ee93fa81f69a2ca4cbe3d1b4da69a50f/sprite/pin3.png',
 function (error, image) {
 if (error) throw error;
-map.addImage('cat', image);
+map.addImage('pin', image);
 
 
 
@@ -586,7 +586,7 @@ map.addLayer({
 'type': 'symbol',
 'source': 'rpoints',
 'layout': {
-'icon-image': 'cat',
+'icon-image': 'pin',
 'icon-size': 0.1
 }
 });
@@ -614,12 +614,14 @@ map.addLayer({
 
 
   map.on('click', 'points', function (e) {
-var coordinates = e.features[0].geometry.coordinates.slice();
+        var coordinates = e.features[0].geometry.coordinates.slice();
 //var description = e.features[0].properties.description;
 
-var description = e.features[0].properties["user"];
+       var description = CreatePropertyHTML( e.features[0].properties);
+       
+      // var description = e.features[0].properties["user"];
 
-console.log('A click event occurred.');
+       console.log('A click event occurred.');
  
 // Ensure that if the map is zoomed out such that multiple
 // copies of the feature are visible, the popup appears
@@ -632,6 +634,8 @@ new maplibregl.Popup()
 .setLngLat(coordinates)
 .setHTML(description)
 .addTo(map);
+
+
 });
 
 /*
@@ -689,7 +693,27 @@ map.addSource('okayama-dosekiryuu-tiles', {
 
 
 
+function  CreatePropertyHTML( prp ){
 
+  var rhtml = "<table><TR><TH>項目</TH><TH>値</TH></TR>";
+
+
+  rhtml = rhtml + "<TR><TD>ユーザ名</TD><TD>";
+
+  rhtml = rhtml + prp["user"];
+  rhtml = rhtml + "</TD></TR>";
+
+  rhtml = rhtml + "<TR><TD>日時</TD><TD>";
+
+rhtml = rhtml + prp["date"];
+rhtml = rhtml + "</TD></TR>";
+
+
+  rhtml = rhtml + "<//table>";
+
+  return rhtml;
+  //var description = e.features[0].properties["user"];
+}
 
 
 
