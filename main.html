@@ -519,6 +519,7 @@ map.addSource('okayama-dosekiryuu-tiles', {
 
 });
 
+map.on('click', add_content);
 
 });
 
@@ -526,8 +527,43 @@ map.addSource('okayama-dosekiryuu-tiles', {
 
 
 
+var nmarker = new maplibregl.Marker();
+
+var popupv;
+
+function add_content (event) {
+  var coordinates = event.lngLat;
+  console.log('Lng:', coordinates.lng, 'Lat:', coordinates.lat);
+
+  formhtml = "<b>危険情報登録</b><br/><form  action=\"\"> <input type=\"text\" name=\"stext\"  METHOD=\"GET\" /><input type=\"submit\" value=\"登録\" onclick=\"commit(this.form)\">"
+    
+    
+    
+  formhtml = formhtml + "<input type=\"hidden\" name=\"lng\" value=\""  + coordinates.lng + "\"><input type=\"hidden\" name=\"lat\" value=\"" + coordinates.lat + "\"></form>";
+
+  popupv = new maplibregl.Popup({
+        closeOnClick: true
+      })
+      .setLngLat(coordinates )
+      .setHTML(formhtml)
+
+  popupv.addTo(map);
 
 
+ // nmarker.setLngLat(coordinates).addTo(map);
+}
+
+function commit(form){
+  popupv.remove();
+  console.log("commit");
+  console.log( form.stext.value );
+  console.log(form.lat.value );
+
+  var cd = {"lng":form.lng.value,  "lat":form.lat.value};
+  nmarker.setLngLat(cd).addTo(map);
+
+  return true;
+}
 
 
 document
