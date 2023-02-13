@@ -4,8 +4,8 @@
 <meta charset='utf-8' />
 <title>パーツ調整サンプル</title>
 <meta name='viewport' content='initial-scale=1,maximum-scale=1,user-scalable=no' />
-<script src="https://unpkg.com/maplibre-gl@2.1.9/dist/maplibre-gl.js"></script>
-<link href="https://unpkg.com/maplibre-gl@2.1.9/dist/maplibre-gl.css" rel="stylesheet" />
+<script src="https://unpkg.com//maplibre-gl@2.2.0-pre.2/dist/maplibre-gl.js"></script>
+<link href="https://unpkg.com//maplibre-gl@2.2.0-pre.2/dist/maplibre-gl.css" rel="stylesheet" />
 <style>
 body { margin:0; padding:0; }
 #map {
@@ -545,6 +545,25 @@ map.addLayer({
 }
 });
 
+
+
+map.addSource('gsi_dem', {
+  
+  type: "raster-dem",
+  tiles:[
+  'gsidem://https://cyberjapandata.gsi.go.jp/xyz/dem_png/{z}/{x}/{y}.png',
+     ],
+     tileSize: 256,
+    maxzoom: 14,
+
+  });
+
+  map.setTerrain({
+    source: "gsi-dem",
+    exaggeration: 2.5
+  });
+
+
 //map.setLayoutProperty('gsi_photo', 'visibility', 'none');
 
 /*
@@ -563,41 +582,47 @@ map.addLayer({
 */
 
 
+
+
+
 map.addSource( 
         'rpoints', {
         'type': 'geojson',
-         'data':'https://script.google.com/macros/s/AKfycbwvROUTmO3FkehnHRsnTntX_LyI_Tf8_7PSSsjie471XrTA93gn2jG8XRmXuN-1nKLk1Q/exec?cmd=GETFEATURS'
+        'data':'https://script.google.com/macros/s/AKfycbwZCkMztd6Naqhq9XJHa9_nVdzh33rESBrS9kbMU4PaOozsARt5pFp6wWCdWOohD0rOng/exec?cmd=GETFEATURS'
         }
 
 );
 //'./sprite/pin3.png',
 //https://drive.google.com/file/d/1cFPBC57nxPHeJgHgLnfqv3PFro1YRNBN/view?usp=sharing
 //'https://upload.wikimedia.org/wikipedia/commons/7/7c/201408_cat.png',
+//'https://raw.githubusercontent.com/yoichigmf/lbmap/8adf0259ee93fa81f69a2ca4cbe3d1b4da69a50f/sprite/pin3.png',
+//https://raw.githubusercontent.com/yoichigmf/lbmap/511c8c3b03f785025f33c3e77ca313e72c1e737e/sprite/marker.png
+
+// var imgf = 'https://raw.githubusercontent.com/yoichigmf/lbmap/8adf0259ee93fa81f69a2ca4cbe3d1b4da69a50f/sprite/pin3.png';
+var imgf = 'https://upload.wikimedia.org/wikipedia/commons/7/7c/201408_cat.png';
+
+
 map.loadImage(
   'https://raw.githubusercontent.com/yoichigmf/lbmap/8adf0259ee93fa81f69a2ca4cbe3d1b4da69a50f/sprite/pin3.png',
-function (error, image) {
-if (error) throw error;
-map.addImage('pin', image);
+   function (error, image) {
+       if (error) throw error;
+       map.addImage('pin', image);
 
 
-var nmarker = new maplibregl.Marker();
 
-//map.addImage( 'marker', nmarker);
-
-map.addLayer({
-'id': 'points',
-'type': 'symbol',
-'source': 'rpoints',
-'layout': {
-'icon-image': 'pin',
-'icon-size': 0.1
-}
-});
+       map.addLayer({
+            'id': 'points',
+            'type': 'symbol',
+            'source': 'rpoints',
+            'layout': {
+            'icon-image': 'pin',
+            'icon-size': 0.1
+                   }
+      });
 
 
-}
+    }
 );
-
 /*
 
    map.addLayer({

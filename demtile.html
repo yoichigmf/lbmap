@@ -1,0 +1,616 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset='utf-8' />
+<title>パーツ調整サンプル</title>
+<meta name='viewport' content='initial-scale=1,maximum-scale=1,user-scalable=no' />
+<script src="https://unpkg.com//maplibre-gl@2.2.0-pre.2/dist/maplibre-gl.js"></script>
+<link href="https://unpkg.com//maplibre-gl@2.2.0-pre.2/dist/maplibre-gl.css" rel="stylesheet" />
+
+
+<style>
+    body { margin:0; padding:0; }
+    #map {
+      position: absolute;
+      top: 130px;
+      bottom: 0;
+      width: 100%;
+    }
+    
+    
+    #basemaps-selecter {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            background: rgba(255, 255, 255, 0);
+          }
+          #basemaps {
+            font-size: 16px;
+            padding: 4px 8px;
+          }
+    
+    
+    
+        
+    #menu {
+    background: #fff;
+    position: absolute;
+    z-index: 1;
+    top: 10px;
+    right: 10px;
+    border-radius: 3px;
+    width: 120px;
+    border: 1px solid rgba(0, 0, 0, 0.4);
+    font-family: 'Open Sans', sans-serif;
+    }
+     
+    #menu a {
+    font-size: 13px;
+    color: #404040;
+    display: block;
+    margin: 0;
+    padding: 0;
+    padding: 10px;
+    text-decoration: none;
+    border-bottom: 1px solid rgba(0, 0, 0, 0.25);
+    text-align: center;
+    }
+     
+    #menu a:last-child {
+    border: none;
+    }
+     
+    #menu a:hover {
+    background-color: #f8f8f8;
+    color: #404040;
+    }
+     
+    #menu a.active {
+    background-color: #3887be;
+    color: #ffffff;
+    }
+     
+    #menu a.active:hover {
+    background: #3074a4;
+    }
+    
+    
+    
+    </style>
+    
+    
+    </head>
+    <body>
+    
+    
+      <style>
+        .listing-group {
+        font: 12px/20px 'Helvetica Neue', Arial, Helvetica, sans-serif;
+        font-weight: 600;
+        position: absolute;
+        top: 10px;
+        left: 10px;
+        z-index: 1;
+        border-radius: 3px;
+        max-width: 100%;
+        color: #fff;
+        }
+         
+        .listing-group input[type='checkbox']:first-child + label {
+        border-radius: 3px 3px 0 0;
+        }
+         
+        .listing-group label:last-child {
+        border-radius: 0 0 3px 3px;
+        border: none;
+        }
+         
+        .listing-group input[type='checkbox'] {
+        display: none;
+        }
+         
+        .listing-group input[type='checkbox'] + label {
+        background-color: #3386c0;
+        display: block;
+        cursor: pointer;
+        padding: 10px;
+        border-bottom: 1px solid rgba(0, 0, 0, 0.25);
+        }
+         
+        .listing-group input[type='checkbox'] + label {
+        background-color: #3386c0;
+        text-transform: capitalize;
+        }
+         
+        .listing-group input[type='checkbox'] + label:hover,
+        .listing-group input[type='checkbox']:checked + label {
+        background-color: #4ea0da;
+        }
+         
+        .listing-group input[type='checkbox']:checked + label:before {
+        content: '✔';
+        margin-right: 5px;
+        }
+    
+    
+        .rounded-rect {
+    background: white;
+    border-radius: 10px;
+    box-shadow: 0 0 50px -25px black;
+    }
+     
+    .flex-center {
+    position: absolute;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    }
+     
+    .flex-center.left {
+    left: 0px;
+    }
+     
+    .flex-center.right {
+    right: 0px;
+    }
+     
+    .sidebar-content {
+    position: absolute;
+    width: 100%;
+    height: 95%;
+    font-family: Arial, Helvetica, sans-serif;
+    font-size: 32px;
+    color: gray;
+    }
+     
+    .sidebar-toggle {
+    position: absolute;
+    width: 1.3em;
+    height: 1.3em;
+    overflow: visible;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    }
+     
+    .sidebar-toggle.left {
+    right: -1.5em;
+    }
+     
+    .sidebar-toggle.right {
+    left: -1.5em;
+    }
+     
+    .sidebar-toggle:hover {
+    color: #0aa1cf;
+    cursor: pointer;
+    }
+     
+    .sidebar {
+    transition: transform 1s;
+    z-index: 1;
+    width: 300px;
+    height: 100%;
+    }
+     
+    /*
+    The sidebar styling has them "expanded" by default, we use CSS transforms to push them offscreen
+    The toggleSidebar() function removes this class from the element in order to expand it.
+    */
+    .left.collapsed {
+    transform: translateX(-295px);
+    }
+     
+    .right.collapsed {
+    transform: translateX(295px);
+    }
+    
+    /* NAVBAR STYLING STARTS */
+    .navbar {
+     display: flex;
+     align-items: center;
+     justify-content: space-between;
+     padding: 20px;
+     background-color: teal;
+     color: #fff;
+     z-index: 1;
+    }
+    .nav-links a {
+     color: #fff;
+    }
+    /* LOGO */
+    .logo {
+     font-size: 32px;
+    }
+    /* NAVBAR MENU */
+    .menu {
+     display: flex;
+     gap: 1em;
+     font-size: 18px;
+    }
+    .menu li:hover {
+     background-color: #4c9e9e;
+     border-radius: 5px;
+     transition: 0.3s ease;
+    }
+    .menu li {
+     padding: 5px 14px;
+    }
+    /* DROPDOWN MENU */
+    .services {
+     position: relative; 
+    }
+    .dropdown {
+     background-color: rgb(1, 139, 139);
+     padding: 1em 0;
+     position: absolute; /*WITH RESPECT TO PARENT*/
+     display: none;
+     border-radius: 8px;
+     top: 35px;
+    }
+    .dropdown li + li {
+     margin-top: 10px;
+    }
+    .dropdown li {
+     padding: 0.5em 1em;
+     width: 8em;
+     text-align: center;
+    }
+    .dropdown li:hover {
+     background-color: #4c9e9e;
+    }
+    .services:hover .dropdown {
+     display: block;
+    }
+    
+      </style>
+    
+     <!--
+    <nav id="menu"></nav>
+     -->
+    
+    
+      <nav class="navbar">
+        <!-- LOGO -->
+        <div class="logo">MUO</div>
+        <!-- NAVIGATION MENU -->
+        <ul class="nav-links">
+          <!-- USING CHECKBOX HACK -->
+          <input type="checkbox" id="checkbox_toggle" />
+          <label for="checkbox_toggle" class="hamburger">&#9776;</label>
+          <!-- NAVIGATION MENUS -->
+          <div class="menu">
+            <li><a href="/">位置指定</a></li>
+            <li><a href="/">About</a></li>
+            <li class="services">
+              <a href="/">シート選択</a>
+              <!-- DROPDOWN MENU -->
+              <ul class="dropdown">
+                <li><a href="/">Dropdown 1 </a></li>
+                <li><a href="/">Dropdown 2</a></li>
+                <li><a href="/">Dropdown 2</a></li>
+                <li><a href="/">Dropdown 3</a></li>
+                <li><a href="/">Dropdown 4</a></li>
+              </ul>
+            </li>
+            <li><a href="/">情報選択</a></li>
+            <li><a href="/">地図指定</a></li>
+          </div>
+        </ul>
+      </nav>
+    
+      
+      <div id='map'>
+    
+    
+    </div>
+
+    <div id="basemaps-selecter">
+    
+      <select id="basemaps">
+      <!-- <option value="blank">地理院タイル白地図</option>  -->
+        <option value="pale">地理院タイル淡色</option>
+     <!--  <option value="std">地理院タイル標準</option>
+        <option value="gsi_3d">地理院タイル3D風</option>
+        <option value="std_vertical">地理院タイル標準縦書きあり</option>
+     -->
+        <option value="gsi_photo">地理院タイル写真</option>
+        </select>
+    
+    </div>
+    
+      
+    <script>
+    
+    
+    const base_maps = {
+      "blank": './blank.json',
+      "pale": './pale.json',
+      "std":'./std_2.json',
+      "gsi_3d":'./building3d.json',
+      "std_vertical":'./std_vertical.json',
+       "gsi_photo": {
+            version: 8,
+            sources: {
+                gsi_photo: {
+                    type: 'raster',
+                    tiles: [
+                        'https://cyberjapandata.gsi.go.jp/xyz/seamlessphoto/{z}/{x}/{y}.jpg',
+                    ],
+                    tileSize: 256,
+                    attribution:
+                        '国土地理院',
+                },
+            },
+            layers: [
+                {
+                    id: 'gsi_photo',
+                    type: 'raster',
+                    source: 'gsi_photo',
+                    minzoom: 5,
+                    maxzoom: 18,
+                },
+            ],
+        }
+    };
+
+
+    var map = new Map({
+    container: 'map',
+    maxPitch: 85,
+    center: [139.408658, 35.698769], 
+      zoom: 15,
+    style: {
+        version: 8,
+        sources: {
+            gsi: {
+                type: 'raster',
+                tiles: [
+                    'https://cyberjapandata.gsi.go.jp/xyz/seamlessphoto/{z}/{x}/{y}.jpg',
+                ],
+                attribution: '地理院タイル',
+            },
+            gsidem: {
+                type: 'raster-dem',
+                tiles: [
+                    'gsidem://https://cyberjapandata.gsi.go.jp/xyz/dem_png/{z}/{x}/{y}.png',
+                ],
+                tileSize: 256,
+                maxzoom: 14,
+            },
+        },
+        layers: [
+            {
+                id: 'gsi',
+                type: 'raster',
+                source: 'gsi',
+            },
+        ],
+        terrain: {
+            source: 'gsidem',
+            exaggeration: 1.2,
+        },
+    },
+});
+
+    
+    
+    
+    const setBasemap = (name) => {
+                // Instantiate the given basemap layer.
+             //   map.setStyle(base_maps[name]);
+             if (name == 'gsi_photo'){
+                console.log('gsi');
+                map.setLayoutProperty(name, 'visibility', 'visible');
+             }
+             else {
+              map.setLayoutProperty('gsi_photo', 'visibility', 'none');
+             }
+    
+            };
+    
+    
+      
+    
+    //setBasemap('pale');
+    
+    
+    
+    
+     
+    const basemapsSelectElement = document.querySelector("#basemaps");
+    
+            basemapsSelectElement.addEventListener("change", (e) => {
+                setBasemap(e.target.value);
+     
+               // map.triggerRepaint();
+    
+            });
+    
+    
+    
+    map.addControl(new maplibregl.NavigationControl(), 'bottom-right');
+    map.addControl(new maplibregl.ScaleControl() );
+    
+    map.on('sourcedata', function() {
+    console.log('A sourcedata event occurred.');
+    /*
+    map.setLayoutProperty(
+                  'okayama-sinsui',
+    'visibility',
+    'visible'
+    );
+    */
+    });
+    
+    
+    map.on('render', function() {
+    console.log('A render event occurred.');
+    });
+    
+    map.on('load', function () {
+    
+    console.log('A load event occurred.');
+    
+    
+    map.addSource('gsi_raster', {
+      
+      'type': 'raster',
+      tiles: [
+                        'https://cyberjapandata.gsi.go.jp/xyz/seamlessphoto/{z}/{x}/{y}.jpg',
+                    ],
+      'tileSize': 256,
+      'attribution':
+      '国土地理院',
+      
+      });
+    
+      map.addLayer({
+     'id':'gsi_photo',
+     'type':'raster',
+     'source':'gsi_raster',
+     'minzoom':5,
+     'maxzoom':18,
+     'layout':{
+     'visibility':'none'
+     },
+     paint:{   "raster-opacity": 1.0}
+    
+    });
+    
+    
+    
+    map.addSource('gsi_std', {
+      
+      type: "vector",
+      tiles:[
+          'https://cyberjapandata.gsi.go.jp/xyz/experimental_bvmap/{z}/{x}/{y}.pbf'
+         ]
+    
+      });
+    
+    
+    
+    map.addLayer({
+    'id': 'waterarea',
+    'type': 'fill',
+    'source': 'gsi_std',
+    'source-layer': 'waterarea',
+    'minzoom':4,
+    'maxzoom':16,
+    'layout': {
+    'line-join': 'round',
+    'line-cap': 'round'
+    },
+    'layout':{
+     'visibility':'visible'
+     },
+    'paint': {
+      "fill-color": "hsl(200, 80%, 50%)",
+              "fill-opacity": 0.5,
+              "fill-outline-color": "white"
+    }
+    });
+    
+    
+    
+    
+    
+    
+    
+    });
+    
+    
+    
+    function  CreatePropertyHTML( prp ){
+    
+    var rhtml = "<table><TR><TH>項目</TH><TH>値</TH></TR>";
+    
+    
+    rhtml = rhtml + "<TR><TD>ユーザ名</TD><TD>";
+    
+    rhtml = rhtml + prp["user"];
+    rhtml = rhtml + "</TD></TR>";
+    
+    rhtml = rhtml + "<TR><TD>日時</TD><TD>";
+    
+    rhtml = rhtml + prp["date"];
+    rhtml = rhtml + "</TD></TR>";
+    
+    
+    rhtml = rhtml + "<TR><TD>住所</TD><TD>";
+    
+    rhtml = rhtml + prp["text"];
+    rhtml = rhtml + "</TD></TR>";
+    
+    
+    if ( prp["proplist"].length > 0 ){
+    
+    
+     for ( var rec of  prp["proplist"] ) {
+       rhtml = rhtml + "<TR><TD>種別</TD><TD>";
+    
+       rhtml = rhtml + rec["kind"];
+       rhtml = rhtml + "</TD></TR>";
+    
+       rhtml = rhtml + "<TR><TD>ユーザ</TD><TD>";
+    
+       rhtml = rhtml + rec["user"];
+       rhtml = rhtml + "</TD></TR>";
+     }
+    
+    
+    }
+    
+    
+    rhtml = rhtml + "</table>";
+    
+    return rhtml;
+    //var description = e.features[0].properties["user"];
+    }
+    
+    
+    function CreatePropertiesHTML( features  ){
+    if ( features.length > 0 ) {
+    
+       var  rethtml = " ";
+    
+       for ( var  feature of features ){
+           var thtml = CreatePropertyHTML( feature.properties );
+    
+           rethtml = rethtml + thtml;
+          
+       }
+    
+       return rethtml;
+    
+    }
+    else {
+      return( "無し")
+    }
+    
+    }
+    
+    
+    
+    
+    
+    document
+    .getElementById('listing-group')
+    .addEventListener('change', function (e) {
+    var layername = e.target.id;
+    if (e.target.checked) {
+      map.setLayoutProperty(layername, 'visibility', 'visible');
+    
+    } else {
+      map.setLayoutProperty(layername, 'visibility', 'none');
+    
+    }
+    });
+    
+    
+    
+    </script>
+     
+    </body>
+    </html>
